@@ -9,6 +9,19 @@ class HelloTool:
     return f"Hello World, {name}! "
 ```
 
+### Registering to the Agent: 
+```python
+from coreagent import Agent
+
+class HelloTool:
+  def get_hello_text(self, name: str):
+    return f"Hello World, {name}! "
+
+agent = Agent()
+agent.register_tool(HelloTool()) # one-line
+# maybe more tools?...
+```
+
 ### With descriptions:
 ```python
 class HelloTool:
