@@ -32,7 +32,7 @@ def generate_aiml_syntax(respond_format_gbnf: str, tools: Dict[str, List[str]]) 
         else:
             tool_call_blocks.append(f'key-start-name "{tool_name}\\n" key-end')
 
-    tool_call_block_rules = "|".join(f'toolcall-{tool.replace(".", "_")}-block' for tool in tools.keys()) if tools else ""
+    tool_call_block_rules = "|".join(f'toolcall-{tool.replace(".", "_")}-block' for tool in tools.keys()) if tools else "\"\""
     tool_specific_block_definitions = ""
     for tool_name in tools.keys():
         sanitized_tool_name = tool_name.replace(".", "_")
@@ -40,7 +40,7 @@ def generate_aiml_syntax(respond_format_gbnf: str, tools: Dict[str, List[str]]) 
 
     gbnf_syntax = f"""
 root ::= think-block (respond-block | toolcall-block) "$$EOF$$"
-think-block ::= "%$summary=>_\\n" text-line+ key-end
+think-block ::= "%$summary=>_\\nNew info to remember (<=10 items): \\n" ((("- " text-line){{1,10}}) | ((("- " text-line){{1,11}}) "ok this is too many! \\n")) key-end
 key-start-action ::= "%$" "action" "=>_" newline
 key-start-respond ::= "%$" "respond" "=>_" newline
 key-start-name ::= "%$" "name" "=>_" newline
@@ -56,7 +56,7 @@ toolcall-block ::= {tool_call_block_rules}
     gbnf_syntax += param_rules
     gbnf_syntax += """param-key ::= [-a-zA-Z0-9_]+
 value-content ::= text-line*
-text-line ::= [^\\n(%$_<)]* newline
+text-line ::= "%$_<"{0} [^\\n]* "%$_<"{0} newline
 newline ::= "\\n"
 key-value-block ::= key-start value-content key-end
 key-start ::= "%$" key "=>_" newline

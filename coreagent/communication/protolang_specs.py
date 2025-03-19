@@ -41,14 +41,17 @@ tool_name
 param value
 %$_<
 %$param:example_string_block=>_
-(multi-line string)
-... Parameter is just a string block, can contain anything. 
+... Parameter is just a string block, can contain anything... 
 %$_<
 %$param:2=>_
 123
 %$_<
 %$param:good=>_
 true
+%$_<
+%$param:some_code=>_
+import os
+print('files: ', os.listdir())
 %$_<
 $$EOF$$
 ```

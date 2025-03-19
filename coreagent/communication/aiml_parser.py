@@ -69,7 +69,7 @@ def parse_aiml(aiml_str: str) -> dict:
         result[key] = value
         i += 1
       else:
-        raise ValueError(f"Invalid syntax at line {i + 1}: {line}. Expected '=' or '=>_' after '%$'")
+        raise ValueError(f"Invalid syntax at line {i + 1}: {line}. Expected '=' or '=>_' after '%$', line: ")
     else:
       # Ignore lines not starting with %$ (for now, could be error depending on desired strictness)
       i += 1

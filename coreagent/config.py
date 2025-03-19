@@ -8,6 +8,7 @@ class Config:
   llm: openai.Client
   model: str
   progressbar_length: int = 50
+  guided_decoding_backend: str = 'xgrammar:no-fallback'
 
 default_config: Optional[Config] = None
 

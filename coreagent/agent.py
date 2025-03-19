@@ -1,6 +1,8 @@
 import copy
 import json
+import os.path
 import typing
+from pathlib import Path
 
 from attr import dataclass
 from tqdm import tqdm
@@ -32,6 +34,7 @@ Some of my thoughts... (do not put draft packets here, it means never include "%
 %$respond=>_
 Hello there!
 %$_< 
+$$EOF$$
 ```
 ----
 Example TOOLCALL output: 
@@ -47,21 +50,22 @@ My plan:
 %$param:some_func_param=>_
 value
 %$_<
+$$EOF$$
 ```
 ----
 Strictly follow below rules and never change: 
 - ISYS is a turn-based system, you must send `respond` in order to receive next message from your peer [%%PEER%%].
 - Follow these: repeat(get input => repeat(call tool => analyze result) => respond) 
 - You only know knowledge within this chat context, forget prior information, stay on fact.
-- Think in Chinese, think simply, and think should you call a function or not. 
-- Think short, using 10-words, then propose a draft, then refine it.
-- Never include any AIML/PROTOLANG text inside "summary. 
+- Never include any AIML/PROTOLANG packets inside "summary, don't write draft packets. 
 - ALl your thinking process will be removed/lost in next turn, so make sure to put important memories into `summary`. 
 - Think when to use string block (eg. for multi-line strings). 
 - Make sure not to over-call functions multiple times. 
 - Always use tools to get latest information if you can, NEVER depend on previous context or states. 
 - You can only either `RESPOND` or `CALLTOOL`. 
-- Base solely on given or retrieved information, never assume anything, if not sure, double check (with tools or thinking). 
+- Base solely on given or tool-retrieved information, never assume anything, if not sure, double check (with tools or thinking).
+- You can iteratively achieve your goal, so do not think everything in one turn, just think overview and partial details you're achiving.
+- Use tools to sense the world.   
 ----
 Conversation purpose: 
 ```
@@ -88,12 +92,14 @@ class Identity:
   name: str = 'Helper'
   peer: str = 'User'
   purpose: str = 'Assist User. '
-  respond_gbnf: str = 'respond-format ::= [^(%$)]+'
+  respond_gbnf: str = 'respond-format ::= (text-line)*'
   # LLM parameters
   temperature: Optional[float] = None
-  frequency_penalty: float = 0.1
-  generation_limit: int = 2000
+  frequency_penalty: float = None # generally don't set this, may cause problems.
+  generation_limit: int = 5000
   show_generation: bool = False
+
+chat_template = Path(os.path.dirname(__file__), "chat_template.qwq.jinja").read_text(encoding='utf-8')
 
 class Agent:
     def __init__(self, identity: Identity = None, config: Config = None):
@@ -133,19 +139,26 @@ class Agent:
                                .replace("%%PEER%%", self.identity.peer)
                                .replace("%%PURPOSE%%", self.identity.purpose)
                                .replace("%%TOOLS%%", "----\n".join([self.tool_desc[x].__str__() for x in self.tool_desc])))
-      delta_history = [{'role': 'user', 'content': encode_aiml({'sender': 'user', 'text': message})}]
+      delta_history = [{'role': 'user', 'content': encode_aiml({'sender': 'peer ['+self.identity.peer+']', 'text': message})}]
       delta_history = self._run(history, delta_history)
       if add:
         for d in delta_history:
           self.msg_history.append(d)
       if return_delta:
         return delta_history
-      return parse_aiml(delta_history[-1]['content'])['respond']
+      # return latest generated AIML.
+      parsed_last = parse_aiml(delta_history[-1]['content'])
+      if 'respond' not in parsed_last:
+        print(json.dumps(delta_history))
+        print(parsed_last)
+      return parsed_last['respond']
     # ---- internal calls ----
     def _run(self, history, delta_histories) -> typing.List[dict]:
       cloned_history = [*history, *delta_histories]
       # print(cloned_history[0]['content'])
       resp: str = self._call_llm(cloned_history)
+      if '</think>' in resp:
+        resp = resp[resp.rindex('</think>')+8:]
       # print(resp)
       aiml: dict = parse_aiml(resp)
       if aiml == {}:
@@ -169,11 +182,20 @@ class Agent:
             tool_resp = tool()
           else:
             tool_resp = tool(**params)
-          delta_histories.append({'role': 'user', 'content': encode_aiml({'sender': 'Tool', 'text': str(tool_resp)})})
+          response_packet = {'sender': 'tool [' + tool_name + ']'}
+          if isinstance(tool_resp, dict):
+            for k, v in tool_resp.items():
+              response_packet[f"output.{k}"] = v if isinstance(v, str) else str(v)
+          elif isinstance(tool_resp, str):
+            response_packet['output'] = tool_resp
+          else:
+            response_packet['output'] = str(tool_resp)
+          print(response_packet)
+          delta_histories.append({'role': 'user', 'content': encode_aiml(response_packet)})
         else:
           raise Exception(f'tool {aiml["name"]} not registered')
       else:
-        delta_histories.append({'role': 'user', 'content': encode_aiml({'sender': 'Nobody', 'text': "(waiting for respond)"})})
+        delta_histories.append({'role': 'user', 'content': encode_aiml({'sender': 'n/a', 'text': "(waiting for respond)"})})
       return self._run(history, delta_histories)
     def _call_llm(self, history) -> str:
       # print(json.dumps(history, indent=2))
@@ -187,14 +209,15 @@ class Agent:
           temperature=self.identity.temperature,
           extra_body=dict(
             guided_grammar=grammar_text,
-            guided_decoding_backend='xgrammar:no-fallback',
+            guided_decoding_backend=self.config.guided_decoding_backend,
+            chat_template=chat_template,
           ),
           frequency_penalty=self.identity.frequency_penalty,
           max_completion_tokens=self.identity.generation_limit,
-          stop="$$EOF$$",
+          stop="\n$$EOF$$", # we need to keep it in a new line to avoid it spitting that in thinking process.
         )
         if r.choices[0].finish_reason != "stop":
-          print(r.choices[0].message.content)
+          print(r.choices[0].message)
           print(f'WARNING: finish_reason={r.choices[0].finish_reason}')
           raise Exception("too long")
         return r.choices[0].message.content or ''
@@ -206,7 +229,8 @@ class Agent:
         temperature=0.0,
         extra_body=dict(
           guided_grammar=grammar_text,
-          guided_decoding_backend='xgrammar:no-fallback',
+          guided_decoding_backend=self.config.guided_decoding_backend,
+          chat_template=chat_template,
         ),
         frequency_penalty=self.identity.frequency_penalty,
         max_completion_tokens=self.identity.generation_limit,
