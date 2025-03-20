@@ -61,6 +61,10 @@ CoreAgent 可以轻松地将您自己的自定义功能集成为工具。要注�
 
 请参阅上面的示例，以获取工具注册的实际演示。
 
+## 使用限制
+
+目前，该项目依赖`vLLM`的`guided_grammar`功能运行，所以你使用`vLLM`git status作为推理服务。
+
 ## 贡献
 
 欢迎为 CoreAgent 做出贡献！如果您有改进、错误修复或新功能的想法，请随时提交 Issue 或 Pull Request。

@@ -61,6 +61,10 @@ CoreAgent makes it easy to integrate your own custom functionalities as tools. T
 
 Refer to the example above for a practical demonstration of tool registration.
 
+## Limitations
+
+Currently, it relies on `guided_grammar` function from `vLLM` to function correctly, so you have to use `vLLM` as inference server. 
+
 ## Contributing
 
 Contributions to CoreAgent are welcome! If you have ideas for improvements, bug fixes, or new features, please feel free to open an issue or submit a pull request.
