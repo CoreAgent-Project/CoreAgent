@@ -69,3 +69,7 @@ Contributions to CoreAgent are welcome! If you have ideas for improvements, bug 
 Brought to you by Shanghai Glacies Technologies Co,. LTD. <br />
 GNU Lesser General Public License v3.0
 https://www.gnu.org/licenses/lgpl-3.0.en.html
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=CoreAgent-Project/CoreAgent&type=Date)](https://www.star-history.com/#CoreAgent-Project/CoreAgent&Date)

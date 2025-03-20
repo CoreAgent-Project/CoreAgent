@@ -69,3 +69,7 @@ CoreAgent 可以轻松地将您自己的自定义功能集成为工具。要注�
 上海格拉切斯工程科技有限公司 倾力呈现。<br />
 GNU Lesser General Public License v3.0
 https://www.gnu.org/licenses/lgpl-3.0.en.html
+
+## 星星历史
+
+[![Star History Chart](https://api.star-history.com/svg?repos=CoreAgent-Project/CoreAgent&type=Date)](https://www.star-history.com/#CoreAgent-Project/CoreAgent&Date)
