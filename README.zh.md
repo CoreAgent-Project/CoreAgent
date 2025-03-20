@@ -6,12 +6,9 @@ CoreAgent 是一个轻量级且直观的框架，旨在使构建智能 Agent 变
 
 ## 主要特性
 
-* **简洁至上：** CoreAgent 的关键设计强调易用性和最少的样板代码。
-* **工具注册：** 通过注册自定义工具轻松扩展您的 Agent 的功能。
-* **基于聊天的交互：** 基于对话式界面构建，使 Agent 交互自然直观。
-* **可扩展：** 设计易于适配和扩展，以满足您的特定需求。
-* **多Agent写作**: 多个Agent可以共享工具状态，共同协作。 
-* **代码编写**: 轻松读写文件。 
+* **Simplicity First**: 易于使用，最少样板代码。
+* **Multi-Agent**: 多个智能体之间共享相同的工具实例状态。
+* **Built-in Tools**: 大量内置工具，助您快速入门！
 
 ## 安装
 
@@ -26,37 +23,20 @@ pip install coreagent
 以下是一个基本示例，演示了如何使用 CoreAgent：
 
 ```python
-import os
 from coreagent import Agent
+import urllib.request
+import json
 
-class FileTool:
-  def __init__(self):
-    self.cwd = '.'
-
-  def cwd(self):
-    return self.cwd
-
-  def cd(self, loc: str):
-    """
-    # 更改工作目录。
-    """
-    self.cwd = os.path.normpath(os.path.join(self.cwd, loc))
-    return "Changed to: " + self.cwd
-
-  def list(self):
-    """
-    # 列出所有文件。
-    """
-    return os.listdir(self.cwd)
-
+class IPTool:
+  def get_my_ip(self) -> str:
+    j = json.loads(urllib.request.urlopen("https://api.ipify.org/?format=json").read().decode())
+    return j['ip']
 
 s = Agent()
-s.register_tool(FileTool())
+s.register_tool(IPTool())
 
-s.chat('What files do i have? ')
+s.chat("我的IP地址是多少？")
 ```
-
-在此示例中，我们定义了一个简单的 `FileTool`，它具有检查当前工作目录、更改目录和列出文件的功能。然后，我们将此工具注册到 `ChatSession` 实例中。`while` 循环允许与 Agent 进行交互式通信，用户的输入将传递给 `s.chat()` 方法。
 
 ## 注册工具
 

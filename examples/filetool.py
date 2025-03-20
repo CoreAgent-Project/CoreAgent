@@ -1,6 +1,6 @@
 import openai
 from coreagent import Agent, Config, set_default_config, Identity
-from coreagent.tools import FileTool
+from coreagent.builtin import FileTool
 
 cli = openai.Client(
     base_url='http://192.168.1.5:9900/v1/',

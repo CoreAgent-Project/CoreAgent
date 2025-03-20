@@ -6,12 +6,9 @@ Brought to you by Shanghai Glacies Technologies Co,. LTD.
 
 ## Key Features
 
-* **Simplicity First:** CoreAgent's key design emphasizes ease of use and minimal boilerplate.
-* **Tool Registration:** Easily extend your agent's capabilities by registering custom tools.
-* **Chat-Based Interaction:** Built around a conversational interface, making agent interaction natural and intuitive.
-* **Extensible:** Designed to be easily adaptable and expandable to fit your specific needs.
-* **Multi-Agent**: Share tool states across multiple agents.  
-* **Coding**: Your agents can read/write to files easily. 
+* **Simplicity First:** Ease of use and minimal boilerplate.
+* **Multi-Agent**: Share the same tool instances states across multiple agents.
+* **Built-in Tools**: Lots of built-in tools to get you started fast! 
 
 ## Installation
 
@@ -26,38 +23,20 @@ pip install coreagent
 Here's a basic example demonstrating how to use CoreAgent:
 
 ```python
-import os
 from coreagent import Agent
+import urllib.request
+import json
 
-
-class FileTool:
-  def __init__(self):
-    self.cwd = '.'
-
-  def cwd(self):
-    return self.cwd
-
-  def cd(self, loc: str):
-    """
-    # Change working directory.
-    """
-    self.cwd = os.path.normpath(os.path.join(self.cwd, loc))
-    return "Changed to: " + self.cwd
-
-  def list(self):
-    """
-    # List all files.
-    """
-    return os.listdir(self.cwd)
-
+class IPTool:
+  def get_my_ip(self) -> str:
+    j = json.loads(urllib.request.urlopen("https://api.ipify.org/?format=json").read().decode())
+    return j['ip']
 
 s = Agent()
-s.register_tool(FileTool())
+s.register_tool(IPTool())
 
-s.chat('What files do i have? ')
+s.chat("What's my IP address? ")
 ```
-
-In this example, we define a simple `FileTool` with functionalities to check the current working directory, change the directory, and list files. We then register this tool with a `ChatSession` instance. The `while` loop allows for interactive communication with the agent, where user input is passed to the `s.chat()` method.
 
 ## Registering Tools
 

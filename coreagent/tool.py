@@ -12,6 +12,12 @@ class ToolCall(pydantic.BaseModel):
 
 @dataclass
 class ToolDesc:
+  """
+  name: "Tool name. "
+  desc: "Tool's description. "
+  parameters: "Result from parseFuncParameters(...)"
+  param_names: "Parameter names as a list. "
+  """
   name: str
   desc: str
   parameters: str
@@ -42,7 +48,7 @@ def parseFuncParameters(c: Callable[..., str]):
     t = params[k].annotation
     if t == inspect.Parameter.empty:
       raise Exception("No type annotation for " + k + ". ")
-    str.append(f"{k}: {t.__name__}")
+    str.append(f"{k}: `{t.__name__}`")
     names.append(k)
   return "\n".join(str) if len(str) > 0 else "(none)", names
 

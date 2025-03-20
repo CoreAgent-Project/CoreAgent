@@ -16,69 +16,11 @@ from .communication import parse_aiml
 from .tool import ToolDesc, parseFuncDesc, parseFuncParameters
 from .config import Config, get_default_config
 
-default_system_prompt = """
-You are [%%NAME%%]. 
-You are interfacing with a turn-based scriptable system (ISYS), your peer [%%PEER%%] will interact with ISYS to engage with you.  
-Diagram: `[%%PEER%%] <=> ISYS <=> [%%NAME%%] (You)`
-----
-%%PROTOCOL_DEFINITIONS%%
-----
-Example RESPOND output: 
-```aiml
-%$action=>_
-RESPOND
-%$_<
-%$summary=>_
-Some of my thoughts... (do not put draft packets here, it means never include "%$", they will cause parsing error! )
-%$_< 
-%$respond=>_
-Hello there!
-%$_< 
-$$EOF$$
-```
-----
-Example TOOLCALL output: 
-```aiml
-%$action=>_
-TOOLCALL
-%$_<
-%$summary=>_
-My plan: 
-1. ...
-2. ...
-%$_<
-%$param:some_func_param=>_
-value
-%$_<
-$$EOF$$
-```
-----
-Strictly follow below rules and never change: 
-- ISYS is a turn-based system, you must send `respond` in order to receive next message from your peer [%%PEER%%].
-- Follow these: repeat(get input => repeat(call tool => analyze result) => respond) 
-- You only know knowledge within this chat context, forget prior information, stay on fact.
-- Never include any AIML/PROTOLANG packets inside "summary, don't write draft packets. 
-- ALl your thinking process will be removed/lost in next turn, so make sure to put important memories into `summary`. 
-- Think when to use string block (eg. for multi-line strings). 
-- Make sure not to over-call functions multiple times. 
-- Always use tools to get latest information if you can, NEVER depend on previous context or states. 
-- You can only either `RESPOND` or `CALLTOOL`. 
-- Base solely on given or tool-retrieved information, never assume anything, if not sure, double check (with tools or thinking).
-- You can iteratively achieve your goal, so do not think everything in one turn, just think overview and partial details you're achiving.
-- Use tools to sense the world.   
-----
-Conversation purpose: 
-```
-%%PURPOSE%%
-```
-----
-You can and only can use following tools: 
-```
-%%TOOLS%%
-```
-----
-Now always and only write directly as [%%NAME%%] according to given formatting. 
-"""
+default_system_prompt = Path(os.path.dirname(__file__), "default_system_prompt.txt").read_text(encoding='utf-8')
+
+chat_templates = {
+  "qwq": Path(os.path.dirname(__file__), "chat_templates", "qwq.jinja").read_text(encoding='utf-8'),
+}
 
 # apply formatting
 default_system_prompt = default_system_prompt.replace("%%PROTOCOL_DEFINITIONS%%", f"""
@@ -89,17 +31,10 @@ default_system_prompt = default_system_prompt.replace("%%PROTOCOL_DEFINITIONS%%"
 
 @dataclass
 class Identity:
-  name: str = 'Helper'
-  peer: str = 'User'
-  purpose: str = 'Assist User. '
-  respond_gbnf: str = 'respond-format ::= (text-line)*'
-  # LLM parameters
-  temperature: Optional[float] = None
-  frequency_penalty: float = None # generally don't set this, may cause problems.
-  generation_limit: int = 5000
-  show_generation: bool = False
-
-chat_template = Path(os.path.dirname(__file__), "chat_template.qwq.jinja").read_text(encoding='utf-8')
+  name: str = 'Helper'                                  # The name of this agent.
+  peer: str = 'User'                                    # Who is this agent talking to?
+  purpose: str = 'Assist User. '                        # What does this agent trying to achieve?
+  respond_gbnf: str = 'respond-format ::= (text-line)*' # GBNF respond format specification, must contain 'respond-format`.
 
 class Agent:
     def __init__(self, identity: Identity = None, config: Config = None):
@@ -116,6 +51,12 @@ class Agent:
           {'role': 'system', 'content': self.system_msg},
         ]
     def register_tool(self, tool: any, name_prefix: str = None, exclude: typing.Optional[typing.List[str]] = None):
+      """
+      # Register a tool instance to this agent.
+      tool: "The tool class instance. "
+      name_prefix: "Prefix all tool methods in this instance with name_prefix, or None to use class name. "
+      exclude: "A list of method names to exclude from adding as tools. "
+      """
       if name_prefix is None:
         name_prefix = type(tool).__name__
       mem = inspect.getmembers(tool, predicate=inspect.ismethod)
@@ -123,6 +64,11 @@ class Agent:
         if not v[0].startswith('_') and (exclude is None or v[0] not in exclude):
           self.register_tool_func(v[1], name_prefix + '.' + v[0])
     def register_tool_func(self, f: Callable[..., str], name: Optional[str] = None):
+      """
+      # Register a tool function to this agent.
+      f: "A function that returns a string, or a dict of string, each param should be annotated by types. "
+      name: "Specify a name for this tool, or None to use function name as tool name. "
+      """
       if name is None:
         name = f.__name__
       if name in self.tools:
@@ -132,7 +78,11 @@ class Agent:
       self.tool_desc[name] = ToolDesc(name=name, desc=parseFuncDesc(f), parameters=param_desc, param_names = param_list)
 
     # ---- core chatting functions ----
-    def chat(self, message: Optional[str] = None, add = True, return_delta: bool = False, continue_last: bool = False):
+    def chat(self, message: Optional[str] = None, add = True, return_delta: bool = False):
+      """
+      # Send a message to this agent, and get RESPOND from it.
+      message: "Text to send to the agent. "
+      """
       history = copy.copy(self.msg_history)
       history[0]['content'] = (self.system_msg
                                .replace("%%NAME%%", self.identity.name)
@@ -154,6 +104,11 @@ class Agent:
       return parsed_last['respond']
     # ---- internal calls ----
     def _run(self, history, delta_histories) -> typing.List[dict]:
+      """
+      # Run with delta_histories recursively, returns updated delta_histories.
+      history: Existing history data.
+      delta_histories: Only used for recursive calls, please pass in empty list [].
+      """
       cloned_history = [*history, *delta_histories]
       # print(cloned_history[0]['content'])
       resp: str = self._call_llm(cloned_history)
@@ -198,43 +153,47 @@ class Agent:
         delta_histories.append({'role': 'user', 'content': encode_aiml({'sender': 'n/a', 'text': "(waiting for respond)"})})
       return self._run(history, delta_histories)
     def _call_llm(self, history) -> str:
-      # print(json.dumps(history, indent=2))
+      """
+      # Executes a single turn of LLM call.
+      history: "Chat history [{\"role\": ..., \"content\": ...}, ...]"
+      """
       grammar_text = generate_aiml_syntax(self.identity.respond_gbnf, dict(
-            [(x, self.tool_desc[x].param_names) for x in self.tool_desc]
-          ))
-      if not self.identity.show_generation:
+        [(x, self.tool_desc[x].param_names) for x in self.tool_desc]
+      ))
+      extra_body = dict(
+        guided_grammar=grammar_text,
+        guided_decoding_backend=self.config.guided_decoding_backend,
+      )
+      if self.config.chat_template_type in chat_templates:
+        extra_body['chat_template'] = chat_templates[self.config.chat_template_type],
+      if not self.config.show_generation:
         r = self.config.llm.chat.completions.create(
           model=self.config.model,
           messages=history,
-          temperature=self.identity.temperature,
-          extra_body=dict(
-            guided_grammar=grammar_text,
-            guided_decoding_backend=self.config.guided_decoding_backend,
-            chat_template=chat_template,
-          ),
-          frequency_penalty=self.identity.frequency_penalty,
-          max_completion_tokens=self.identity.generation_limit,
-          # stop="\n$$EOF$$", # we need to keep it in a new line to avoid it spitting that in thinking process.
+          temperature=self.config.temperature,
+          extra_body=extra_body,
+          frequency_penalty=self.config.frequency_penalty,
+          max_completion_tokens=self.config.generation_limit,
+          stop="\n$$EOF$$" if self.config.use_stop_token else None
         )
         if r.choices[0].finish_reason != "stop":
           print(r.choices[0].message)
           print(f'WARNING: finish_reason={r.choices[0].finish_reason}')
           raise Exception("too long")
-        return r.choices[0].message.content or ''
+        if 'content' not in r.choices[0].message or len(r.choices[0].message.content) <= 0:
+          print(r.choices[0])
+          raise Exception("empty LLM response")
+        return r.choices[0].message.content
       ##########
       r = self.config.llm.chat.completions.create(
         model=self.config.model,
         messages=history,
         stream=True,
         temperature=0.0,
-        extra_body=dict(
-          guided_grammar=grammar_text,
-          guided_decoding_backend=self.config.guided_decoding_backend,
-          chat_template=chat_template,
-        ),
+        extra_body=extra_body,
         frequency_penalty=self.identity.frequency_penalty,
         max_completion_tokens=self.identity.generation_limit,
-        # stop="\n$$EOF$$",
+        stop="\n$$EOF$$" if self.config.use_stop_token else None,
       )
       total = ''
       reasoning = ''
