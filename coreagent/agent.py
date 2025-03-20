@@ -214,7 +214,7 @@ class Agent:
           ),
           frequency_penalty=self.identity.frequency_penalty,
           max_completion_tokens=self.identity.generation_limit,
-          stop="\n$$EOF$$", # we need to keep it in a new line to avoid it spitting that in thinking process.
+          # stop="\n$$EOF$$", # we need to keep it in a new line to avoid it spitting that in thinking process.
         )
         if r.choices[0].finish_reason != "stop":
           print(r.choices[0].message)
@@ -234,7 +234,7 @@ class Agent:
         ),
         frequency_penalty=self.identity.frequency_penalty,
         max_completion_tokens=self.identity.generation_limit,
-        stop="$$EOF$$",
+        # stop="\n$$EOF$$",
       )
       total = ''
       reasoning = ''
