@@ -9,7 +9,7 @@ Simplest Agent Framework
 </h3>
 
 <p align="center">
-| <a href="https://github.com/CoreAgent-Project/CoreAgent/blob/main/coreagent/docs/Documentation.md"><b>Documentation</b></a> | <a href="https://discord.gg/Hytrg9UXgU"><b>Discord</b></a> |
+| <a href="https://github.com/CoreAgent-Project/CoreAgent/blob/main/docs/Documentation.md"><b>Documentation</b></a> | <a href="https://discord.gg/Hytrg9UXgU"><b>Discord</b></a> |
 </p>
 
 ----
