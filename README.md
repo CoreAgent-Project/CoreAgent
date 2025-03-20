@@ -1,8 +1,20 @@
-# CoreAgent: Simplest Agent Framework
+<p align="center">
+  <picture>
+    <img alt="CoreAgent" src="https://raw.githubusercontent.com/CoreAgent-Project/CoreAgent/main/assets/coreagent.png" width=55%>
+  </picture>
+</p>
+
+<h3 align="center">
+Simplest Agent Framework
+</h3>
+
+<p align="center">
+| <a href="https://github.com/CoreAgent-Project/CoreAgent/blob/main/coreagent/docs/Documentation.md"><b>Documentation</b></a> | <a href="https://discord.gg/Hytrg9UXgU"><b>Discord</b></a> |
+</p>
+
+----
 
 CoreAgent is a lightweight and intuitive framework designed to make building intelligent agents straightforward. Focusing on simplicity, CoreAgent allows you to quickly integrate language models with custom tools to create powerful and versatile applications. 
-
-Brought to you by Shanghai Glacies Technologies Co,. LTD. 
 
 ## Key Features
 
@@ -54,5 +66,6 @@ Refer to the example above for a practical demonstration of tool registration.
 Contributions to CoreAgent are welcome! If you have ideas for improvements, bug fixes, or new features, please feel free to open an issue or submit a pull request.
 
 ## License
+Brought to you by Shanghai Glacies Technologies Co,. LTD. <br />
 GNU Lesser General Public License v3.0
 https://www.gnu.org/licenses/lgpl-3.0.en.html

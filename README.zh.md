@@ -1,8 +1,20 @@
-# CoreAgent：无比简单的 Agent 框架
+<p align="center">
+  <picture>
+    <img alt="CoreAgent" src="https://raw.githubusercontent.com/CoreAgent-Project/CoreAgent/main/assets/coreagent.png" width=55%>
+  </picture>
+</p>
 
-CoreAgent 是一个轻量级且直观的框架，旨在使构建智能 Agent 变得简单直接。CoreAgent 专注于简洁性，让您能够快速地将语言模型与自定义工具集成，从而创建强大且通用的应用程序。
+<h3 align="center">
+简单易用的智能体框架
+</h3>
 
-上海格拉切斯工程科技有限公司 倾力呈现。
+<p align="center">
+| <a href="https://github.com/CoreAgent-Project/CoreAgent/blob/main/coreagent/docs/Documentation.md"><b>文档</b></a> | <a href="https://discord.gg/Hytrg9UXgU"><b>Discord</b></a> |
+</p>
+
+----
+
+CoreAgent 是一个轻量级且直观的框架，旨在使构建智能体变得简单直接。CoreAgent 专注于简洁性，让您能够快速地将语言模型与自定义工具集成，从而创建强大且通用的应用程序。
 
 ## 主要特性
 
@@ -54,5 +66,6 @@ CoreAgent 可以轻松地将您自己的自定义功能集成为工具。要注�
 欢迎为 CoreAgent 做出贡献！如果您有改进、错误修复或新功能的想法，请随时提交 Issue 或 Pull Request。
 
 ## 许可证
+上海格拉切斯工程科技有限公司 倾力呈现。<br />
 GNU Lesser General Public License v3.0
 https://www.gnu.org/licenses/lgpl-3.0.en.html
