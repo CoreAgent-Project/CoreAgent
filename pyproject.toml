@@ -1,10 +1,11 @@
 [project]
 name = "coreagent"
 version = "0.1.0"
-description = "The simplest LLM Agent framework. "
+description = "The Simplest Agent framework. "
 keywords = ["CoreAgent", 'LLM', 'Agent', 'LLM Agent', 'AI Agent']
 readme = {file = "README.md", content-type = "text/markdown"}
 authors = [
+  {name = "Kevin Wang"},
   {name = "Shanghai Glacies Technologies Co,. LTD"},
 ]
 maintainers = [
