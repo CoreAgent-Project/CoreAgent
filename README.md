@@ -18,8 +18,9 @@ CoreAgent is a lightweight and intuitive framework designed to make building int
 
 ## Key Features
 
+* **Universal:** Both coding, chatting, one `Agent` class handles them all! 
 * **Simplicity First:** Ease of use and minimal boilerplate.
-* **Multi-Agent**: Share the same tool instances states across multiple agents.
+* **Sharable Tool States**: Share the same tool instances states across multiple agents. 
 * **Built-in Tools**: Lots of built-in tools to get you started fast! 
 
 ## Installation
@@ -64,6 +65,12 @@ Refer to the example above for a practical demonstration of tool registration.
 ## Limitations
 
 Currently, it relies on `guided_grammar` function from `vLLM` to function correctly, so you have to use `vLLM` as inference server. 
+
+## Roadmap
+[x] Basic universal agent framework. 
+[ ] Remove `guided_grammar` restriction, allow general LLM usage (DeepSeek API, GPT3.5/4/4o API, Qwen API, etc. )
+[ ] More intuitive simplified examples, alowing hands-on try-outs. 
+[ ] RAG-based memory module. 
 
 ## Contributing
 
