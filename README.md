@@ -63,21 +63,9 @@ s.register_tool(IPTool())
 s.chat("What's my IP address? ")
 ```
 
-## Registering Tools
-
-CoreAgent makes it easy to integrate your own custom functionalities as tools. To register a tool, you simply need to:
-
-1.  Define a Python class for your tool.
-2.  Implement the methods you want to expose to the agent. Use docstrings to provide descriptions for your methods. These descriptions can be used by the agent to understand how to use the tool.
-3.  Instantiate your tool class.
-4.  Register the instance with the `ChatSession` using the `register_tool()` method.
-
-Refer to the example above for a practical demonstration of tool registration.
-
-
 ## Roadmap
 - [x] Basic universal agent framework. 
-- [x] Remove `guided_grammar` restriction, allow general LLM usage (DeepSeek API, GPT3.5/4/4o API, Qwen API, etc. )
+- [x] Make `guided_grammar` optional, allow general LLM usage (DeepSeek API, GPT3.5/4/4o API, Qwen API, etc. )
 - [ ] More intuitive simplified examples, alowing hands-on try-outs. 
 - [ ] RAG-based memory module. 
 

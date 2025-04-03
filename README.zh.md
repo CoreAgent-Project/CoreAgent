@@ -59,20 +59,9 @@ s.register_tool(IPTool())
 s.chat("我的IP地址是多少？")
 ```
 
-## 注册工具
-
-CoreAgent 可以轻松地将您自己的自定义功能集成为工具。要注册工具，您只需：
-
-1.  为您的工具定义一个 Python 类。
-2.  实现您想要暴露给 Agent 的方法。使用文档字符串为您的方法提供描述。这些描述可供 Agent 理解如何使用该工具。
-3.  实例化您的工具类。
-4.  使用 `register_tool()` 方法将实例注册到 `ChatSession`。
-
-请参阅上面的示例，以获取工具注册的实际演示。
-
 ## Roadmap
 - [x] 基础框架。 
-- [x] 移除 `guided_grammar` 强制需求，支持常用LLM API (DeepSeek API, GPT3.5/4/4o API, Qwen API, etc. )
+- [x] 使 `guided_grammar` 成为可选依赖，支持常用LLM API (DeepSeek API, GPT3.5/4/4o API, Qwen API, etc. )
 - [ ] 更简单的样例代码。
 - [ ] 基于RAG的记忆系统。
 

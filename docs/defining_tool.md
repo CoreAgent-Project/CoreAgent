@@ -1,6 +1,13 @@
-from pexpect.replwrap import python
+## Defining And Registering A Tool
 
-## Define a tool for CoreAgent
+CoreAgent makes it easy to integrate your own custom functionalities as tools. To register a tool, you simply need to:
+
+1.  Define a Python class for your tool.
+2.  Implement the methods you want to expose to the agent. Use docstrings to provide descriptions for your methods. These descriptions can be used by the agent to understand how to use the tool.
+3.  Instantiate your tool class.
+4.  Register the instance with the `ChatSession` using the `register_tool()` method.
+
+Refer to the example above for a practical demonstration of tool registration.
 
 ### Simplest example: 
 ```python
