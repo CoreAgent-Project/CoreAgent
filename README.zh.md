@@ -32,6 +32,15 @@ pip install coreagent
 
 ## 快速入门
 
+试试简单的 `guard_and_theif.py` 样例: 
+```shell
+python ./examples/guard_and_theif.py \
+  -u "https://api.openai.com/v1/" \
+  -m "gpt-3.5-turbo" \
+  -k "...API KEY..." \
+  --verbose
+```
+
 以下是一个基本示例，演示了如何使用 CoreAgent：
 
 ```python

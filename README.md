@@ -33,12 +33,24 @@ pip install coreagent
 
 ## Getting Started
 
-Here's a basic example demonstrating how to use CoreAgent:
+Try out simple `guard_and_theif.py` example: 
+```shell
+python ./examples/guard_and_theif.py \
+  -u "https://api.openai.com/v1/" \
+  -m "gpt-3.5-turbo" \
+  -k "...API KEY..." \
+  --verbose
+```
+
+Or, you may try to write a basic example demonstrating how to use CoreAgent:
 
 ```python
-from coreagent import Agent
+from coreagent import Agent, set_default_config_from_args
 import urllib.request
 import json
+
+# read arguments
+set_default_config_from_args()
 
 class IPTool:
   def get_my_ip(self) -> str:
