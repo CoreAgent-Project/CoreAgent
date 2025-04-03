@@ -1,5 +1,8 @@
 import openai
-from coreagent import Agent, Config, set_default_config
+from coreagent import Agent, set_default_config_from_args
+
+# load deafult configurations from command-line arguments
+set_default_config_from_args()
 
 class VFSTool:
   def __init__(self):
@@ -10,12 +13,6 @@ class VFSTool:
     self.files[file] = content
   def read(self, file: str):
     return self.files[file]
-
-cli = openai.Client(
-    base_url='http://192.168.1.5:9900/v1/',
-    api_key='1',
-)
-set_default_config(Config(cli, "llm"))
 
 s = Agent()
 s.register_tool(VFSTool(), 'fs')

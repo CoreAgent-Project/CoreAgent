@@ -1,6 +1,6 @@
 [project]
 name = "coreagent"
-version = "0.1.0-alpha"
+version = "0.1.1-alpha"
 description = "The Simplest Agent framework. "
 keywords = ["CoreAgent", 'LLM', 'Agent', 'LLM Agent', 'AI Agent']
 readme = {file = "README.md", content-type = "text/markdown"}

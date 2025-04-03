@@ -157,14 +157,18 @@ class Agent:
       # Executes a single turn of LLM call.
       history: "Chat history [{\"role\": ..., \"content\": ...}, ...]"
       """
-      grammar_text = generate_aiml_syntax(self.identity.respond_gbnf, dict(
-        [(x, self.tool_desc[x].param_names) for x in self.tool_desc]
-      ))
-      extra_body = dict(
-        guided_grammar=grammar_text,
-        guided_decoding_backend=self.config.guided_decoding_backend,
-      )
-      if self.config.chat_template_type in chat_templates:
+      extra_body: dict = {}
+
+      if self.config.use_guided_generation:
+        grammar_text = generate_aiml_syntax(self.identity.respond_gbnf, dict(
+          [(x, self.tool_desc[x].param_names) for x in self.tool_desc]
+        ))
+        extra_body = dict(
+          guided_grammar=grammar_text,
+          guided_decoding_backend=self.config.guided_decoding_backend,
+        )
+
+      if self.config.chat_template_type is not None and self.config.chat_template_type in chat_templates:
         extra_body['chat_template'] = chat_templates[self.config.chat_template_type],
       if not self.config.show_generation:
         r = self.config.llm.chat.completions.create(
@@ -180,7 +184,7 @@ class Agent:
           print(r.choices[0].message)
           print(f'WARNING: finish_reason={r.choices[0].finish_reason}')
           raise Exception("too long")
-        if 'content' not in r.choices[0].message or len(r.choices[0].message.content) <= 0:
+        if r.choices[0].message is None or len(r.choices[0].message.content) <= 0:
           print(r.choices[0])
           raise Exception("empty LLM response")
         return r.choices[0].message.content
@@ -188,21 +192,21 @@ class Agent:
       r = self.config.llm.chat.completions.create(
         model=self.config.model,
         messages=history,
-        stream=True,
-        temperature=0.0,
+        temperature=self.config.temperature,
         extra_body=extra_body,
-        frequency_penalty=self.identity.frequency_penalty,
-        max_completion_tokens=self.identity.generation_limit,
+        frequency_penalty=self.config.frequency_penalty,
+        max_completion_tokens=self.config.generation_limit,
         stop="\n$$EOF$$" if self.config.use_stop_token else None,
+        stream=True
       )
       total = ''
       reasoning = ''
       resp = ''
-      # prog = tqdm(r, unit='')
+      prog = tqdm(r, unit='')
       finish_reason = None
 
       entered_content = False
-      for chunk in r:
+      for chunk in prog:
         # print(chunk.choices[0], flush=True)
         if hasattr(chunk.choices[0].delta, "reasoning_content"):
           total += chunk.choices[0].delta.reasoning_content
@@ -211,13 +215,13 @@ class Agent:
         elif hasattr(chunk.choices[0].delta, "content") and len(chunk.choices[0].delta.content) > 0:
           if not entered_content:
             entered_content=True
-            print("\n========\nOUTPUT: \n")
+            # print("\n========\nOUTPUT: \n")
           total += chunk.choices[0].delta.content
           resp += chunk.choices[0].delta.content
-          print(chunk.choices[0].delta.content, end='', flush=True)
+          # print(chunk.choices[0].delta.content, end='', flush=True)
         if len(total) > self.config.progressbar_length:
           total = total[-self.config.progressbar_length:]
-        # prog.set_postfix_str(total.replace("\n", ""), refresh=False)
+        prog.set_postfix_str(total.replace("\n", "").replace("\r", ""), refresh=False)
         finish_reason = chunk.choices[0].finish_reason
       if finish_reason == 'length':
         raise Exception('generation too long')

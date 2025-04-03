@@ -1,5 +1,7 @@
-import openai
-from coreagent import Agent, Config, set_default_config
+from coreagent import Agent, set_default_config_from_args, get_default_config
+
+# load deafult configurations from command-line arguments
+set_default_config_from_args()
 
 class Bomber:
   def __init__(self):
@@ -14,11 +16,8 @@ class Killer:
   def kill(self, name: str):
     return f"Update: {name} is now killed! "
 
-cli = openai.Client(
-    base_url='http://192.168.1.5:9900/v1/',
-    api_key='1',
-)
-set_default_config(Config(cli, "llm"))
+if get_default_config().use_guided_generation:
+  print("Using xgrammar guided generation. ")
 
 s = Agent()
 s.register_tool(Bomber())

@@ -1,14 +1,13 @@
 import openai
-from coreagent import Agent, Config, set_default_config, Identity
+from coreagent import Agent, Identity, set_default_config_from_args
 from coreagent.builtin import ToolGen
 
-cli = openai.Client(
-    base_url='http://192.168.1.5:9900/v1/',
-    api_key='1',
-)
-set_default_config(Config(cli, "llm"))
+# load deafult configurations from command-line arguments
+set_default_config_from_args()
 
-s = Agent(Identity(show_generation=False, generation_limit=5000, temperature=0.0))
+
+
+s = Agent()
 s.register_tool(ToolGen(s))
 
 while True:

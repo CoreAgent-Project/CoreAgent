@@ -62,13 +62,10 @@ CoreAgent makes it easy to integrate your own custom functionalities as tools. T
 
 Refer to the example above for a practical demonstration of tool registration.
 
-## Limitations
-
-Currently, it relies on `guided_grammar` function from `vLLM` to function correctly, so you have to use `vLLM` as inference server. 
 
 ## Roadmap
 - [x] Basic universal agent framework. 
-- [ ] Remove `guided_grammar` restriction, allow general LLM usage (DeepSeek API, GPT3.5/4/4o API, Qwen API, etc. )
+- [x] Remove `guided_grammar` restriction, allow general LLM usage (DeepSeek API, GPT3.5/4/4o API, Qwen API, etc. )
 - [ ] More intuitive simplified examples, alowing hands-on try-outs. 
 - [ ] RAG-based memory module. 
 

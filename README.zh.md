@@ -61,9 +61,11 @@ CoreAgent 可以轻松地将您自己的自定义功能集成为工具。要注�
 
 请参阅上面的示例，以获取工具注册的实际演示。
 
-## 使用限制
-
-目前，该项目依赖`vLLM`的`guided_grammar`功能运行，所以你使用`vLLM`git status作为推理服务。
+## Roadmap
+- [x] 基础框架。 
+- [x] 移除 `guided_grammar` 强制需求，支持常用LLM API (DeepSeek API, GPT3.5/4/4o API, Qwen API, etc. )
+- [ ] 更简单的样例代码。
+- [ ] 基于RAG的记忆系统。
 
 ## 贡献
 

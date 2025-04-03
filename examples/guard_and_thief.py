@@ -1,13 +1,7 @@
-import os
+from coreagent import Agent, Identity, set_default_config_from_args
 
-import openai
-from coreagent import Agent, Identity, Config, set_default_config
-
-cli = openai.Client(
-    base_url='http://192.168.1.5:9900/v1/',
-    api_key='1',
-)
-set_default_config(Config(cli, "llm"))
+# load deafult configurations from command-line arguments
+set_default_config_from_args()
 
 class TortureState:
   def __init__(self):
