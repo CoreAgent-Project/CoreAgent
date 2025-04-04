@@ -33,7 +33,7 @@ pip install coreagent
 
 ## Getting Started
 
-Try out simple `guard_and_theif.py` example: 
+Try out simple `guard_and_theif.py` example with **OpenAI** official endpoint: 
 ```shell
 python ./examples/guard_and_theif.py \
   -u "https://api.openai.com/v1/" \
@@ -42,14 +42,23 @@ python ./examples/guard_and_theif.py \
   --verbose
 ```
 
-Or, you may try to write a basic example demonstrating how to use CoreAgent:
+With **DeepSeek** official endpoint: 
+```shell
+python examples/toolgen.py \
+  -u "https://api.deepseek.com" \
+  -k "sk-..." \
+  -m deepseek-reasoner \
+  --verbose
+```
+
+Now, you can start integrating **CoreAgent** to your project:
 
 ```python
 from coreagent import Agent, set_default_config_from_args
 import urllib.request
 import json
 
-# read arguments
+# read common arguments (--api-base-url/-u, --api-key/-k, --model/-m, --verbose/-v, --guided/-g)
 set_default_config_from_args()
 
 class IPTool:
@@ -66,8 +75,9 @@ s.chat("What's my IP address? ")
 ## Roadmap
 - [x] Basic universal agent framework. 
 - [x] Make `guided_grammar` optional, allow general LLM usage (DeepSeek API, GPT3.5/4/4o API, Qwen API, etc. )
-- [ ] More intuitive simplified examples, alowing hands-on try-outs. 
+- [x] More intuitive simplified examples, allowing hands-on try-outs. 
 - [ ] RAG-based memory module. 
+- [ ] Integrate MCP client module. 
 
 ## Contributing
 

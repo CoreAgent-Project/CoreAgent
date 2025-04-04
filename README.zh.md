@@ -41,12 +41,24 @@ python ./examples/guard_and_theif.py \
   --verbose
 ```
 
-以下是一个基本示例，演示了如何使用 CoreAgent：
+使用 **DeepSeek** 官方接口: 
+```shell
+python examples/toolgen.py \
+  -u "https://api.deepseek.com" \
+  -k "sk-..." \
+  -m deepseek-reasoner \
+  --verbose
+```
+
+以下是一个基本示例，演示了如何使用 **CoreAgent**：
 
 ```python
-from coreagent import Agent
+from coreagent import Agent, set_default_config_from_args
 import urllib.request
 import json
+
+# 读取公用参数 (--api-base-url/-u, --api-key/-k, --model/-m, --verbose/-v, --guided/-g)
+set_default_config_from_args()
 
 class IPTool:
   def get_my_ip(self) -> str:
@@ -62,8 +74,9 @@ s.chat("我的IP地址是多少？")
 ## Roadmap
 - [x] 基础框架。 
 - [x] 使 `guided_grammar` 成为可选依赖，支持常用LLM API (DeepSeek API, GPT3.5/4/4o API, Qwen API, etc. )
-- [ ] 更简单的样例代码。
+- [x] 更简单的样例代码。
 - [ ] 基于RAG的记忆系统。
+- [ ] 整合MCP客户端。
 
 ## 贡献
 
