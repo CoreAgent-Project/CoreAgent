@@ -5,7 +5,7 @@
 </p>
 
 <h3 align="center">
-Simplest Agent Framework
+Simplest Agent Framework with Stateful Tools
 </h3>
 
 <p align="center">
@@ -19,12 +19,27 @@ Simplest Agent Framework
 
 CoreAgent is a lightweight and intuitive framework designed to make building intelligent agents straightforward. Focusing on simplicity, CoreAgent allows you to quickly integrate language models with custom tools to create powerful and versatile applications. 
 
-## Key Features
+## Stateful Tools
+Introducing **Stateful Tools**, which can be shared across multiple agents.  
+```python
+from coreagent import Agent
 
-* **Universal:** Both coding, chatting, one `Agent` class handles them all! 
-* **Simplicity First:** Ease of use and minimal boilerplate.
-* **Sharable Tool States**: Share the same tool instances states across multiple agents. 
-* **Built-in Tools**: Lots of built-in tools to get you started fast! 
+class MyStatefulTool:
+  def __init__(self):
+    self.state = 0
+  def add_state(self, n: int):
+    self.state += n
+  def get_state(self):
+    return self.state
+
+# single shared tool! 
+shared_tool = MyStatefulTool()
+
+agent_1 = Agent.with_tools(shared_tool)
+agent_2 = Agent.with_tools(shared_tool)
+agent_1.chat("add by 10")
+agent_2.chat("what's current state? ")
+```
 
 ## Installation
 

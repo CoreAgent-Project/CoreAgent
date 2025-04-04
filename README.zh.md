@@ -5,7 +5,7 @@
 </p>
 
 <h3 align="center">
-简单易用的智能体框架
+简单易用的智能体框架，支持有状态的工具调用
 </h3>
 
 <p align="center">
@@ -19,11 +19,27 @@
 
 CoreAgent 是一个轻量级且直观的框架，旨在使构建智能体变得简单直接。CoreAgent 专注于简洁性，让您能够快速地将语言模型与自定义工具集成，从而创建强大且通用的应用程序。
 
-## 主要特性
+## 状态化工具
+隆重介绍 **Stateful Tools**, 使得同一个工具的状态在多个智能体间共享状态。
+```python
+from coreagent import Agent
 
-* **Simplicity First**: 易于使用，最少样板代码。
-* **Multi-Agent**: 多个智能体之间共享相同的工具实例状态。
-* **Built-in Tools**: 大量内置工具，助您快速入门！
+class MyStatefulTool:
+  def __init__(self):
+    self.state = 0
+  def add_state(self, n: int):
+    self.state += n
+  def get_state(self):
+    return self.state
+
+# single shared tool! 
+shared_tool = MyStatefulTool()
+
+agent_1 = Agent.with_tools(shared_tool)
+agent_2 = Agent.with_tools(shared_tool)
+agent_1.chat("增加10个状态值")
+agent_2.chat("现在状态值是多少？")
+```
 
 ## 安装
 

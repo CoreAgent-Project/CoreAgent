@@ -50,6 +50,12 @@ class Agent:
         self.msg_history = [
           {'role': 'system', 'content': self.system_msg},
         ]
+    @staticmethod
+    def with_tools(*tools: any):
+      agent = Agent()
+      for tool in tools:
+        agent.register_tool(tool)
+      return agent
     def register_tool(self, tool: any, name_prefix: str = None, exclude: typing.Optional[typing.List[str]] = None):
       """
       # Register a tool instance to this agent.
