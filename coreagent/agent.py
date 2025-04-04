@@ -208,7 +208,7 @@ class Agent:
       entered_content = False
       for chunk in prog:
         # print(chunk.choices[0], flush=True)
-        if hasattr(chunk.choices[0].delta, "reasoning_content"):
+        if hasattr(chunk.choices[0].delta, "reasoning_content") and chunk.choices[0].delta.reasoning_content is not None:
           total += chunk.choices[0].delta.reasoning_content
           reasoning += chunk.choices[0].delta.reasoning_content
           print(chunk.choices[0].delta.reasoning_content, end='', flush=True)
