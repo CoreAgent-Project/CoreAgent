@@ -1,3 +1,4 @@
+import typing
 from argparse import ArgumentParser
 from typing import Sequence, Optional
 from collections.abc import Callable
@@ -19,25 +20,46 @@ def set_default_config_from_args(args: Sequence[str] | None = None, argument_par
   arg_parser.add_argument("--api-key", "-k", default="1", help="API key ")
   arg_parser.add_argument("--model", "-m", default="llm", help="Model to use. ")
   arg_parser.add_argument("--verbose", "-v", action="store_true", default=False, help="Show generation process via a progress bar. ")
+  arg_parser.add_argument("--temperature", "-t", default=None, type=float, help="Temperature for generation. ")
+
+  # below are some hacky parameters
+  arg_parser.add_argument("--deepseek", default=False, action="store_true", help="Automatically setup with DeepSeek Reasoner. ")
 
   if argument_parser_handler is not None:
     argument_parser_handler(arg_parser)
 
   args = arg_parser.parse_args(args)
 
-  if args.api_base_url is None:
-    args.api_base_url = None
-
-  if args.verbose:
-    print("[Verbose] Showing generation process via a progress bar. ")
-
-  if args.guided:
-    print("[Guided] Using guided generation (xgrammar). ")
+  if args.deepseek:
+    print("[DeepSeek] Automatic setup, ignoring \"--api-base-url\" and \"--model\". ")
+    args.api_base_url = 'https://api.deepseek.com'
+    args.model = 'deepseek-reasoner'
 
   cli = openai.Client(
       base_url=args.api_base_url,
       api_key=args.api_key,
   )
-  set_default_config(Config(cli, args.model, use_guided_generation=args.guided, show_generation=args.verbose))
+
+  kwargs = dict(
+    llm=cli,
+    model=args.model,
+  )
+
+  if args.api_base_url is None:
+    args.api_base_url = None
+
+  if args.temperature is not None:
+    print("[Temperature] Setting temperature to %f. " % args.temperature)
+    kwargs['temperature'] = float(args.temperature)
+
+  if args.verbose:
+    print("[Verbose] Showing generation process via a progress bar. ")
+    kwargs['show_generation']=args.verbose
+
+  if args.guided:
+    print("[Guided] Using guided generation (xgrammar). ")
+    kwargs['use_guided_generation']=args.guided,
+
+  set_default_config(Config(**kwargs))
 
   return args
