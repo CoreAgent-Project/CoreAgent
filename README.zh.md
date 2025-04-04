@@ -9,6 +9,9 @@
 </h3>
 
 <p align="center">
+<a href="https://github.com/CoreAgent-Project/CoreAgent/blob/main/README.md">English Version</a>
+</p>
+<p align="center">
 | <a href="https://github.com/CoreAgent-Project/CoreAgent/blob/main/docs/Documentation.md"><b>文档</b></a> | <a href="https://discord.gg/Hytrg9UXgU"><b>Discord</b></a> |
 </p>
 
