@@ -74,7 +74,11 @@ class ToolGen:
     ######
 
     scope = {}
-    exec(tool_code, scope)
+    try:
+      exec(tool_code, scope)
+    except Exception as e:
+      return {'ok': 'no', 'error': f'Code execution error. \n{e}'}
+
     if 'GeneratedTool' not in scope:
       return {'ok': 'no', 'error': "Tool source code must contain a GeneratedTool class. "}
     self.agent.register_tool(scope['GeneratedTool'](), instance_name)
