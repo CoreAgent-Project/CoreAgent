@@ -17,6 +17,18 @@ class FileTool:
       if not self.cwd in p.parents and not self.cwd.samefile(p):
         return None
       return p
+  def tree(self, dir: str):
+    """
+    # Walk through all dir and sub-dir list all file structures.
+    dir: Path to list all files at.
+    """
+    resolved = self._resolve(dir)
+    if resolved is None:
+      return "Root directory does not exist. "
+    ret = {}
+    for dirname, dirs, files in os.walk(str(resolved), topdown=True, followlinks=True):
+      ret[Path(dirname).relative_to(self.root_path)] = '\n'.join(files) + "\n" + '\n'.join([d+' (dir)' for d in dirs])
+    return ret
   def exists(self, file: str):
     """
     # Check a file/dir exists or not.
@@ -67,6 +79,7 @@ class FileTool:
   def write_file(self, file: str, content: str):
     """
     # Write a single file.
+    # Warning: It will over-write existing file, so make sure write full content, do NOT omit anything.
     file: The single file name to write.
     content: Raw file content to write, everything in it will be written to the file.
     """

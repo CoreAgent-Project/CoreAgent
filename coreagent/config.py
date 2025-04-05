@@ -23,6 +23,18 @@ class Config:
   # ---- display only ----
   show_generation: bool = False  # Don't use it for now, a bug in vLLM (tested as of <= v0.8.0) caused random junks to be streamed, check out vLLM Issue #15188.
   progressbar_length: int = 50   # Not used for now
+  def clone(self):
+    return Config(
+      llm=self.llm,
+      model=self.model,
+      temperature=self.temperature,
+      frequency_penalty=self.frequency_penalty,
+      generation_limit=self.generation_limit,
+      use_guided_generation=self.use_guided_generation,
+      guided_decoding_backend=self.guided_decoding_backend,
+      use_stop_token=self.use_stop_token,
+      chat_template_type=self.chat_template_type,
+    )
 
 # Default configuration (used internally, do NOT modify directly! )
 default_config: Optional[Config] = None

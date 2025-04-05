@@ -83,6 +83,11 @@ class Agent:
       param_desc, param_list = parseFuncParameters(f)
       self.tool_desc[name] = ToolDesc(name=name, desc=parseFuncDesc(f), parameters=param_desc, param_names = param_list)
 
+    def reset(self):
+      self.msg_history = [
+        {'role': 'system', 'content': self.system_msg},
+      ]
+
     # ---- core chatting functions ----
     def chat(self, message: Optional[str] = None, add = True, return_delta: bool = False):
       """
@@ -142,7 +147,11 @@ class Agent:
           if params == {}:
             tool_resp = tool()
           else:
-            tool_resp = tool(**params)
+            try:
+              tool_resp = tool(**params)
+            except Exception as e:
+              print(e)
+              tool_resp = str(e)
           response_packet = {'sender': 'tool [' + tool_name + ']'}
           if isinstance(tool_resp, dict):
             for k, v in tool_resp.items():
@@ -156,7 +165,8 @@ class Agent:
         else:
           raise Exception(f'tool {aiml["name"]} not registered')
       else:
-        delta_histories.append({'role': 'user', 'content': encode_aiml({'sender': 'n/a', 'text': "(waiting for respond)"})})
+        delta_histories.append({'role': 'assistant', 'content': resp})
+        delta_histories.append({'role': 'user', 'content': encode_aiml({'sender': 'PROTOCOL ERROR', 'text': "Invalid action \"{action}\". "})})
       return self._run(history, delta_histories)
     def _call_llm(self, history) -> str:
       """

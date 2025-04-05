@@ -82,6 +82,6 @@ def _is_valid_key(key: str) -> bool:
   if not key:
     return False
   for char in key:
-    if not (char.isalnum() or char == ":" or char == "_"):
+    if not (char.isalnum() or char == ":" or char == "_" or char == "."):
       return False
   return True

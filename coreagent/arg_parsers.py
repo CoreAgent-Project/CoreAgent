@@ -24,16 +24,17 @@ def set_default_config_from_args(args: Sequence[str] | None = None, argument_par
 
   # below are some hacky parameters
   arg_parser.add_argument("--deepseek", default=False, action="store_true", help="Automatically setup with DeepSeek Reasoner. ")
+  arg_parser.add_argument("--deepseek-chat", default=False, action="store_true", help="Automatically setup with DeepSeek-Chat model (non-reasoning). ")
 
   if argument_parser_handler is not None:
     argument_parser_handler(arg_parser)
 
   args = arg_parser.parse_args(args)
 
-  if args.deepseek:
+  if args.deepseek or args.deepseek_chat:
     print("[DeepSeek] Automatic setup, ignoring \"--api-base-url\" and \"--model\". ")
     args.api_base_url = 'https://api.deepseek.com'
-    args.model = 'deepseek-reasoner'
+    args.model = 'deepseek-reasoner' if args.deepseek else 'deepseek-chat'
 
   cli = openai.Client(
       base_url=args.api_base_url,
