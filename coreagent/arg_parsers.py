@@ -25,6 +25,7 @@ def set_default_config_from_args(args: Sequence[str] | None = None, argument_par
   # below are some hacky parameters
   arg_parser.add_argument("--deepseek", default=False, action="store_true", help="Automatically setup with DeepSeek Reasoner. ")
   arg_parser.add_argument("--deepseek-chat", default=False, action="store_true", help="Automatically setup with DeepSeek-Chat model (non-reasoning). ")
+  arg_parser.add_argument("--bailian", default=False, action="store_true", help="Automatically setup with Aliyun's Bai Lian platform, this still requires \"--model\" parameter. ")
 
   if argument_parser_handler is not None:
     argument_parser_handler(arg_parser)
@@ -35,6 +36,9 @@ def set_default_config_from_args(args: Sequence[str] | None = None, argument_par
     print("[DeepSeek] Automatic setup, ignoring \"--api-base-url\" and \"--model\". ")
     args.api_base_url = 'https://api.deepseek.com'
     args.model = 'deepseek-reasoner' if args.deepseek else 'deepseek-chat'
+  elif args.bailian:
+    print("[BaiLian] Automatic setup, ignoring \"--api-base-url\". ")
+    args.api_base_url = 'https://dashscope.aliyuncs.com/compatible-mode/v1'
 
   cli = openai.Client(
       base_url=args.api_base_url,
