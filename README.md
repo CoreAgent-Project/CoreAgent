@@ -93,9 +93,10 @@ s.chat("What's my IP address? ")
 ## Roadmap
 - [x] Basic universal agent framework. 
 - [x] Make `guided_grammar` optional, allow general LLM usage (DeepSeek API, GPT3.5/4/4o API, Qwen API, etc. )
-- [x] More intuitive simplified examples, allowing hands-on try-outs. 
+- [x] More intuitive simplified examples, allowing hands-on try-outs.
+- [ ] Multi-modal input. 
 - [ ] RAG-based memory module. 
-- [ ] Integrate MCP client module. 
+- [ ] <s>Integrate MCP client module. <s> (MCP is just a propaganda, useless stuff)
 
 ## Contributing
 
