@@ -96,7 +96,7 @@ s.chat("What's my IP address? ")
 - [x] More intuitive simplified examples, allowing hands-on try-outs.
 - [ ] Multi-modal input. 
 - [ ] RAG-based memory module. 
-- [ ] <s>Integrate MCP client module. <s> (MCP is just a propaganda, useless stuff)
+- [ ] <s>Integrate MCP client module. </s> (MCP is just a propaganda, useless stuff)
 
 ## Contributing
 
