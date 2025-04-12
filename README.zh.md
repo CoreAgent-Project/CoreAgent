@@ -94,8 +94,9 @@ s.chat("我的IP地址是多少？")
 - [x] 基础框架。 
 - [x] 使 `guided_grammar` 成为可选依赖，支持常用LLM API (DeepSeek API, GPT3.5/4/4o API, Qwen API, etc. )
 - [x] 更简单的样例代码。
+- [ ] 多模态输入。
 - [ ] 基于RAG的记忆系统。
-- [ ] 整合MCP客户端。
+- [ ] <s>整合MCP客户端。</s> (MCP只是一个宣传噱头，所以不做支持)
 
 ## 贡献
 
