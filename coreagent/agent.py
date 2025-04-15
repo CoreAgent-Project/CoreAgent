@@ -163,10 +163,12 @@ class Agent:
           print(response_packet)
           delta_histories.append({'role': 'user', 'content': encode_aiml(response_packet)})
         else:
-          raise Exception(f'tool {aiml["name"]} not registered')
+          # raise Exception(f'tool {aiml["name"]} not registered')
+          delta_histories.append({'role': 'assistant', 'content': resp})
+          delta_histories.append({'role': 'user', 'content': encode_aiml({'sender': 'PROTOCOL ERROR', 'text': f"Invalid tool \"{aiml['name']}\". "})})
       else:
         delta_histories.append({'role': 'assistant', 'content': resp})
-        delta_histories.append({'role': 'user', 'content': encode_aiml({'sender': 'PROTOCOL ERROR', 'text': "Invalid action \"{action}\". "})})
+        delta_histories.append({'role': 'user', 'content': encode_aiml({'sender': 'PROTOCOL ERROR', 'text': f"Invalid action \"{action}\". "})})
       return self._run(history, delta_histories)
     def _call_llm(self, history) -> str:
       """
