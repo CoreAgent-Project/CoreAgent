@@ -89,7 +89,7 @@ class Agent:
       ]
 
     # ---- core chatting functions ----
-    def chat(self, message: Optional[str] = None, add = True, return_delta: bool = False):
+    def chat(self, message: Optional[str] = None, add = True, return_delta: bool = False, tool_callback = None, summary_callback = None):
       """
       # Send a message to this agent, and get RESPOND from it.
       message: "Text to send to the agent. "
@@ -101,7 +101,7 @@ class Agent:
                                .replace("%%PURPOSE%%", self.identity.purpose)
                                .replace("%%TOOLS%%", "----\n".join(["<tool_call>" + self.tool_desc[x].__str__() + "</tool_call>" for x in self.tool_desc])))
       delta_history = [{'role': 'user', 'content': encode_aiml({'sender': 'peer ['+self.identity.peer+']', 'text': message})}]
-      delta_history = self._run(history, delta_history)
+      delta_history = self._run(history, delta_history, tool_callback = tool_callback, summary_callback = summary_callback)
       if add:
         for d in delta_history:
           self.msg_history.append(d)
@@ -114,7 +114,7 @@ class Agent:
         print(parsed_last)
       return parsed_last['respond']
     # ---- internal calls ----
-    def _run(self, history, delta_histories) -> typing.List[dict]:
+    def _run(self, history, delta_histories, tool_callback = None, summary_callback = None) -> typing.List[dict]:
       """
       # Run with delta_histories recursively, returns updated delta_histories.
       history: Existing history data.
@@ -133,15 +133,30 @@ class Agent:
       if action == 'RESPOND':
         delta_histories.append({'role': 'assistant', 'content': resp})
         return delta_histories
+
+      if 'summary' in aiml:
+        if summary_callback is not None:
+          summary_callback(aiml['summary'])
+
       if action == 'TOOLCALL':
         # cloned_aiml_without_params = dict([(k, v if not k.startswith('param:') and len(v) > 10 else '(...deducted from memory...)') for k, v in aiml.items()])
         # delta_histories.append({'role': 'assistant', 'content': encode_aiml(cloned_aiml_without_params)})
         delta_histories.append({'role': 'assistant', 'content': resp})
+
+        if 'name' not in aiml:
+          delta_histories.append({'role': 'user', 'content': encode_aiml({'sender': 'PROTOCOL ERROR', 'text': f"Unable to find 'name' field in AIML packet. "})})
+          return self._run(history, delta_histories, tool_callback=tool_callback, summary_callback=summary_callback)
+
         tool_name = aiml['name']
         if tool_name in self.tools:
           tool = self.tools[tool_name]
           params = dict([(k[6:], aiml[k]) for k in aiml.keys() if k.startswith('param:')])
           print(f'{self.identity.name} call tool {tool_name}')
+
+          # tool callback
+          if tool_callback is not None:
+            tool_callback(tool_name)
+
           # print(param)
           # import sys;sys.exit(0)
           if params == {}:
@@ -164,12 +179,11 @@ class Agent:
           delta_histories.append({'role': 'user', 'content': encode_aiml(response_packet)})
         else:
           # raise Exception(f'tool {aiml["name"]} not registered')
-          delta_histories.append({'role': 'assistant', 'content': resp})
           delta_histories.append({'role': 'user', 'content': encode_aiml({'sender': 'PROTOCOL ERROR', 'text': f"Invalid tool \"{aiml['name']}\". "})})
       else:
         delta_histories.append({'role': 'assistant', 'content': resp})
         delta_histories.append({'role': 'user', 'content': encode_aiml({'sender': 'PROTOCOL ERROR', 'text': f"Invalid action \"{action}\". "})})
-      return self._run(history, delta_histories)
+      return self._run(history, delta_histories, tool_callback = tool_callback, summary_callback = summary_callback)
     def _call_llm(self, history) -> str:
       """
       # Executes a single turn of LLM call.
