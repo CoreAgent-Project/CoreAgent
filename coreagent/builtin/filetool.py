@@ -60,7 +60,7 @@ class FileTool:
       return "Current directory does not exist. "
     if not self.cwd.is_dir():
       return "Current directory is not a directory. "
-    files = os.listdir(str(self.cwd))
+    files = ["\"%s\" (%s)" % (x, 'file' if not os.path.isdir(os.path.join(str(self.cwd), x)) else 'dir') for x in os.listdir(str(self.cwd))]
     return {'files': "\n".join(files), 'count': str(len(files))}
   def mkdir(self, dir: str):
     """
