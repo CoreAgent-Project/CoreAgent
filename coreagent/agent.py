@@ -99,7 +99,7 @@ class Agent:
                                .replace("%%NAME%%", self.identity.name)
                                .replace("%%PEER%%", self.identity.peer)
                                .replace("%%PURPOSE%%", self.identity.purpose)
-                               .replace("%%TOOLS%%", "----\n".join([self.tool_desc[x].__str__() for x in self.tool_desc])))
+                               .replace("%%TOOLS%%", "----\n".join(["<tool_call>" + self.tool_desc[x].__str__() + "</tool_call>" for x in self.tool_desc])))
       delta_history = [{'role': 'user', 'content': encode_aiml({'sender': 'peer ['+self.identity.peer+']', 'text': message})}]
       delta_history = self._run(history, delta_history)
       if add:
@@ -186,8 +186,11 @@ class Agent:
           guided_decoding_backend=self.config.guided_decoding_backend,
         )
 
-      if self.config.chat_template_type is not None and self.config.chat_template_type in chat_templates:
-        extra_body['chat_template'] = chat_templates[self.config.chat_template_type],
+      if self.config.chat_template_type is not None:
+        if self.config.chat_template_type not in chat_templates:
+          raise Exception("unrecognized custom chat template type")
+        extra_body['chat_template'] = chat_templates[self.config.chat_template_type]
+
       if not self.config.show_generation:
         r = self.config.llm.chat.completions.create(
           model=self.config.model,

@@ -10,7 +10,7 @@
         {{- "\n" }}
         {{- tool | tojson }}
     {%- endfor %}
-    {{- "\n</tools>\n\nFor each function call, return a json object with function name and arguments within <tool_call></tool_call> XML tags:\n<tool_call>\n{\"name\": <function-name>, \"arguments\": <args-json-object>}\n</tool_call><|im_end|>\n" }}
+    {{- "\n</tools>\n\nFor each function call, return a json object with function name and arguments within <tool_call></tool_call> XML tags:\n<tool_call>\n{\\\"name\\\": <function-name>, \\\"arguments\\\": <args-json-object>}\n</tool_call><|im_end|>\n" }}
 {%- else %}
     {%- if messages[0]['role'] == 'system' %}
         {{- '<|im_start|>system\n' + messages[0]['content'] + '<|im_end|>\n' }}
@@ -20,10 +20,16 @@
     {%- if (message.role == "user") or (message.role == "system" and not loop.first) %}
         {{- '<|im_start|>' + message.role + '\n' + message.content + '<|im_end|>' + '\n' }}
     {%- elif message.role == "assistant" and not message.tool_calls %}
-        {%- set content = message.content.split('</think>')[-1].lstrip('\n') %}
+        {%- set content = message.content %}
+        {%- if not loop.last %}
+            {%- set content = message.content.split('</think>')[-1].lstrip('\n') %}
+        {%- endif %}
         {{- '<|im_start|>' + message.role + '\n' + content + '<|im_end|>' + '\n' }}
     {%- elif message.role == "assistant" %}
-        {%- set content = message.content.split('</think>')[-1].lstrip('\n') %}
+        {%- set content = message.content %}
+        {%- if not loop.last %}
+            {%- set content = message.content.split('</think>')[-1].lstrip('\n') %}
+        {%- endif %}
         {{- '<|im_start|>' + message.role }}
         {%- if message.content %}
             {{- '\n' + content }}
@@ -52,15 +58,6 @@
     {%- endif %}
 {%- endfor %}
 {%- if add_generation_prompt %}
-    {{- "<|im_start|>assistant\n<think>Thinking begin! Okay, let's think shortly with few steps.
-I should know that I can iteratively make progresses, so I must stay simple, think below less than 200 words and use tools to get info.
-I will make sure to think shortly, then finish thinking and write final AIML packet, put simplified memories there.
-I should come up with overview plan, then focus on details. I am allowed to make small mistakes so I can always stop thinking and ask user.
-Thinking process can only have pseudo-code, I will never think about detailed code.
-I will check out previous messages and think about tools I can use to achieve the goal.
-I can always use tool to confirm my guesses and assumptions.
-And yes, I should never forget to add a '$$EOF$$' to end the packet.
-Before making changes, I use tools to build up knowledge first.
-Here's a simple thought plan in plain-text without 'but' or 'wait':
-- 1. " }}
+    {{- "<|im_start|>assistant\n<think>Okay, here's a thinking procedure of solving user's intention.
+During this thinking, I will come up with 3 proposals and choose the best. " }}
 {%- endif %}

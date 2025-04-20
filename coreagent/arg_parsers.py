@@ -22,6 +22,8 @@ def set_default_config_from_args(args: Sequence[str] | None = None, argument_par
   arg_parser.add_argument("--verbose", "-v", action="store_true", default=False, help="Show generation process via a progress bar. ")
   arg_parser.add_argument("--temperature", "-t", default=None, type=float, help="Temperature for generation. ")
 
+  arg_parser.add_argument("--custom-chat-template", "--tmpl", default=None, type=str, help="Custom chat template to use, only [qwq] now. ")
+
   # below are some hacky parameters
   arg_parser.add_argument("--deepseek", default=False, action="store_true", help="Automatically setup with DeepSeek Reasoner. ")
   arg_parser.add_argument("--deepseek-chat", default=False, action="store_true", help="Automatically setup with DeepSeek-Chat model (non-reasoning). ")
@@ -64,6 +66,10 @@ def set_default_config_from_args(args: Sequence[str] | None = None, argument_par
   if args.guided:
     print("[Guided] Using guided generation (xgrammar). ")
     kwargs['use_guided_generation']=args.guided,
+
+  if args.custom_chat_template is not None:
+    print("[Custom Chat Template] Using custom chat template. ")
+    kwargs['chat_template_type'] = args.custom_chat_template
 
   set_default_config(Config(**kwargs))
 
