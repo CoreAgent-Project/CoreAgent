@@ -1,23 +1,62 @@
+import re # Import the regular expression module
+
 def parse_aiml(aiml_str: str) -> dict:
   """
-  Parses AIML-like syntax string and returns a dictionary.
+  Parses AIML-like syntax string, potentially wrapped in Markdown code blocks,
+  and returns a dictionary.
+
+  Handles input formats like:
+  1. Raw AIML string:
+     %$key=value
+     %$block=>_
+     content
+     %$_<
+
+  2. AIML wrapped in a code block (with optional surrounding whitespace/newlines):
+     ```aiml
+     %$key=value
+     %$block=>_
+     content
+     %$_<
+     ```
 
   Args:
-      aiml_str: The AIML-like syntax string to parse.
+      aiml_str: The AIML-like syntax string to parse, possibly wrapped.
 
   Returns:
       A dictionary representing the parsed AIML structure.
       Key-value pairs are stored as direct entries in the dictionary.
       String blocks are also stored as entries with their keys and content.
+
+  Raises:
+      ValueError: If the syntax within the AIML content is invalid
+                  (e.g., malformed key-value, unclosed block).
   """
-  if aiml_str is None or aiml_str == '':
+  if aiml_str is None:
+    return {}
+
+  pattern = r"^\s*```(aiml)?\s*(.*?)\s*```\s*$"
+  match = re.search(pattern, aiml_str, re.DOTALL)
+
+  if match:
+    # If a code block is found, use the captured content
+    aiml_content_to_parse = match.group(2)
+  else:
+    # Otherwise, assume the entire input string is the AIML content
+    aiml_content_to_parse = aiml_str.strip() # Strip outer whitespace just in case
+
+  # If after extraction or stripping, the content is empty, return empty dict
+  if not aiml_content_to_parse:
     return {}
   result = {}
   lines = aiml_str.splitlines()
   i = 0
   while i < len(lines):
     line = lines[i]
-    if not line:  # Skip empty lines
+    # Strip leading/trailing whitespace from the line itself for processing
+    stripped_line = line.strip()
+
+    if not stripped_line:  # Skip empty or whitespace-only lines
       i += 1
       continue
     if line.strip() == "$$EOF$$":
@@ -43,9 +82,6 @@ def parse_aiml(aiml_str: str) -> dict:
             string_block_content = "\n".join(string_block_content_lines)
             result[string_block_key] = string_block_content
             i += 1
-            if i < len(lines) and lines[i].strip() and not lines[i].strip().startswith(
-                "%$"):  # consume optional lineTerminator after _<
-              i += 1  # skip if there is a line after _< and it is not a new block
             break  # String block ended
           else:
             string_block_content_lines.append(block_line)
@@ -59,19 +95,18 @@ def parse_aiml(aiml_str: str) -> dict:
         # Key-Value Pair
         parts = line_content.split("=", 1)
         if len(parts) != 2:
-          raise ValueError(f"Invalid key-value pair syntax at line {i + 1}: {line}")
+          raise ValueError(f"Invalid key-value pair syntax at line {i + 1} (relative to extracted content): {line}")
         key = parts[0].strip()
         value = parts[1].strip()
 
         if not _is_valid_key(key):
-          raise ValueError(f"Invalid key at line {i + 1}: {key}")
+          raise ValueError(f"Invalid key at line {i + 1} (relative to extracted content): {key}")
 
         result[key] = value
         i += 1
       else:
-        raise ValueError(f"Invalid syntax at line {i + 1}: {line}. Expected '=' or '=>_' after '%$', line: ")
+        raise ValueError(f"Invalid syntax at line {i + 1} (relative to extracted content): Expected '=' or '=>_' after '%$'. Line: {line}")
     else:
-      # Ignore lines not starting with %$ (for now, could be error depending on desired strictness)
       i += 1
 
   return result
