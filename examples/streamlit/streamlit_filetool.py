@@ -24,6 +24,9 @@ agent.register_tool(file_tool, exclude=['write_file', 'mkdir'] if not args.allow
 if args.coder:
   agent.register_tool(CodeBase(file_tool))
 
+if 'agent_history' in st.session_state:
+  agent.msg_history = st.session_state.agent_history
+
 def chat_with_agent(message, history):
     """
     This function takes a user message and the chat history,
@@ -61,4 +64,4 @@ if message := st.chat_input("Chat Input"):
   m = st.chat_message("assistant")
   m.write(response_text)
   st.session_state.messages.append({"role": "assistant", "content": response_text})
-
+  st.session_state.agent_history = agent.msg_history
