@@ -15,7 +15,7 @@ args = set_default_config_from_args(argument_parser_handler=register_extra_args)
 
 # update some required params since we might generate a lot!
 default_config: Config = get_default_config()
-default_config.generation_limit=50000
+default_config.generation_limit=10000
 
 file_tool = FileTool(args.root_dir)
 
@@ -53,12 +53,12 @@ def summary_callback(summary: str):
   _m.markdown(text)
   st.session_state.messages.append({"role": "summary", "content": text})
 
-if message := st.chat_input("loser"):
+if message := st.chat_input("Chat Input"):
   m = st.chat_message("user")
   m.markdown(message)
   st.session_state.messages.append({"role": "user", "content": message})
   response_text = agent.chat(message, tool_callback=tool_callback, summary_callback=summary_callback)
   m = st.chat_message("assistant")
   m.write(response_text)
-  st.session_state.messages.append({"role": "assistant", "content": message})
+  st.session_state.messages.append({"role": "assistant", "content": response_text})
 
