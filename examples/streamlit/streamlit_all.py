@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 
 from coreagent import Agent, Config, set_default_config_from_args, get_default_config
-from coreagent.builtin import FileTool, CodeBase, ToolGen, AskingShellExecutorTool
+from coreagent.builtin import FileTool, CodeBase, ToolGen, AskingShellExecutorTool, SeleniumBrowser, ArxivTool
 
 import streamlit as st
 
@@ -23,6 +23,8 @@ agent = Agent()
 agent.register_tool(file_tool, exclude=['write_file', 'mkdir'] if not args.allow_write else None)
 agent.register_tool(ToolGen(agent))
 agent.register_tool(AskingShellExecutorTool())
+agent.register_tool(SeleniumBrowser(agent.config.llm, agent.config.model))
+agent.register_tool(ArxivTool(file_tool_for_root=file_tool)) # use root from file_root
 
 if args.coder:
   agent.register_tool(CodeBase(file_tool))
