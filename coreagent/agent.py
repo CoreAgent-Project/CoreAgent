@@ -66,9 +66,13 @@ class Agent:
       if name_prefix is None:
         name_prefix = type(tool).__name__
       mem = inspect.getmembers(tool, predicate=inspect.ismethod)
+      names = []
       for v in mem:
         if not v[0].startswith('_') and (exclude is None or v[0] not in exclude):
-          self.register_tool_func(v[1], name_prefix + '.' + v[0])
+          tool_name = name_prefix + '.' + v[0]
+          self.register_tool_func(v[1], tool_name)
+          names.append(tool_name)
+      return names
     def register_tool_func(self, f: Callable[..., str], name: Optional[str] = None):
       """
       # Register a tool function to this agent.
@@ -122,11 +126,17 @@ class Agent:
       """
       cloned_history = [*history, *delta_histories]
       # print(cloned_history[0]['content'])
-      resp: str = self._call_llm(cloned_history)
-      if '</think>' in resp:
-        resp = resp[resp.rindex('</think>')+8:]
-      # print(resp)
-      aiml: dict = parse_aiml(resp)
+      aiml = None
+      while aiml is None:
+        resp: str = self._call_llm(cloned_history)
+        if '</think>' in resp:
+          resp = resp[resp.rindex('</think>')+8:]
+        # print(resp)
+        try:
+          aiml: dict = parse_aiml(resp)
+        except:
+          print("Generated AIML syntax is wrong, trying again. ")
+          aiml = None
       if aiml == {}:
         aiml = {'action': 'RESPOND', 'respond': ''} # default to respond nothing
       action = aiml['action']

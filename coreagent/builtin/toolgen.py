@@ -1,14 +1,33 @@
 from coreagent import Agent, Identity
 
+try:
+  from .selenium_browser import web_to_markdown
+  _toolgen_web_support = True
+  print("[ToolGen] Selenium found and loaded. ")
+except:
+  print("Selenium not found, ToolGen will unable to browse web. ")
+  _toolgen_web_support = False
 
 class ToolGen:
   def __init__(self, agent: Agent):
     self.agent: Agent = agent
-  def generate_tool(self, requirements: str):
+  def generate_tool(self, requirements: str, web_links: str, should_auto_install_as_tool_name: str):
     """
     # Let a coder write code for a new tool and get Python source code back. .
     requirements: "What you want to achieve for this tool, eg. writing a file. "
+    web_links: "URLs to get documentations from, separated by new lines ('\n'). "
+    should_auto_install_as_tool_name: "If not empty string, `generate_tool` will install the code automatically to you back without returning code, if empty, it will return tool code instead. "
     """
+    if web_links.strip() != "":
+      if not _toolgen_web_support:
+        return {'ok': 'no', 'error': "Web browsing is not supported, you should leave 'web_links' parameter empty and provide all information from 'requirements' parameter. "}
+      documentations = {}
+      for link in web_links.split("\n"):
+        if link.strip() != "":
+          documentations[link] = web_to_markdown(self.agent.config.llm, self.agent.config.model, link)
+      documentations_combined = "\n".join([("%s\n```markdown\n%s\n```\n" % (link, md)) for link, md in documentations.items()])
+      requirements += "\n\nInformation fetched from Internet\n========\n" + documentations_combined
+
     tmp: Agent = Agent(Identity(
       name="Tool Writer",
       peer="ISYS Tool Management System",
@@ -48,6 +67,8 @@ class ToolGen:
       """
     ), self.agent.config)
     result_code = tmp.chat("Pleases write a tool class to achieve: \n" + requirements)
+    if should_auto_install_as_tool_name.strip() != '':
+      return self.install_tool(should_auto_install_as_tool_name.strip(), result_code)
     return result_code
   def install_tool(self, instance_name: str, tool_code: str):
     """
@@ -81,4 +102,5 @@ class ToolGen:
 
     if 'GeneratedTool' not in scope:
       return {'ok': 'no', 'error': "Tool source code must contain a GeneratedTool class. "}
-    self.agent.register_tool(scope['GeneratedTool'](), instance_name)
+    registered_names = self.agent.register_tool(scope['GeneratedTool'](), instance_name)
+    return {'ok': 'yes', 'message': 'Tool installed successfully as following: \n' + ("\n".join(registered_names))}
