@@ -2,3 +2,4 @@
 *.iml
 .DS_Store
 __pycache__
+/downloaded_files
