@@ -4,6 +4,8 @@ This index provides links to the documentation files for the CoreAgent Python li
 
 ## Getting Started
 
+* [Built-In Tools](builtin_tools.md)
+* [Examples](https://github.com/CoreAgent-Project/CoreAgent/tree/main/examples)
 * [Defining A Tool](defining_tool.md)
 
 
