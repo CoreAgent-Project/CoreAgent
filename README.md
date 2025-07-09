@@ -19,6 +19,10 @@ Simplest Agent Framework with Stateful Tools
 
 CoreAgent is a lightweight and intuitive framework designed to make building intelligent agents straightforward. Focusing on simplicity, CoreAgent allows you to quickly integrate language models with custom tools to create powerful and versatile applications. 
 
+## Abandon MCP! NOW! Use AIML, instead! 
+LLMs are very bad at outputting escaped characters in their outputs, so you will often see messed-up code in your LLM output. 
+That's why `AIML` comes to the rescue, we have proposed a new method of communicating with LLM which addresses this character escaping issue mostly! 
+
 ## Stateful Tools
 Introducing **Stateful Tools**, which can be shared across multiple agents.  
 ```python
