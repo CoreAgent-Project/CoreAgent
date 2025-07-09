@@ -22,6 +22,7 @@ CoreAgent is a lightweight and intuitive framework designed to make building int
 ## Abandon MCP! NOW! Use AIML, instead! 
 LLMs are very bad at outputting escaped characters in their outputs, so you will often see messed-up code in your LLM output. 
 That's why `AIML` comes to the rescue, we have proposed a new method of communicating with LLM which addresses this character escaping issue mostly! 
+<a href="https://github.com/CoreAgent-Project/CoreAgent/blob/main/docs/terminologies/AIML.md">AIML Introduction</a>
 
 ## Stateful Tools
 Introducing **Stateful Tools**, which can be shared across multiple agents.  
